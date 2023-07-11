@@ -81,6 +81,8 @@ class BluetoothConnection extends Component {
   componentDidMount () {
     // const { comand } = this.props;
     // Alert.alert(comand)
+    
+  
     Promise.all([
       BluetoothSerial.isEnabled(),
       BluetoothSerial.list()
@@ -247,6 +249,19 @@ class BluetoothConnection extends Component {
     .catch((err) => ToastAndroid.show(err.message, ToastAndroid.SHORT))
   }
 
+  
+
+  componentDidUpdate(prevProps) {
+    // Check if specific condition is met
+    console.log(this.props.comand);
+    if (this.props.comand !== prevProps?.comand) {
+      // Call the function when the condition is met
+    
+      this.write(this.props.comand);
+      // console.log("New: "+this.props.comand +" Prev: "+prevProps?.comand);
+    }
+  }
+
 
 
   onDevicePress (device) {
@@ -278,7 +293,8 @@ class BluetoothConnection extends Component {
   
 
   render () {
-    const { comand } = this.props;
+  
+    const {state, dispatch,comand} = this.props;
     const runCom = ()=>{
       this.write(comand)
     }
@@ -287,7 +303,8 @@ class BluetoothConnection extends Component {
     return (
       <ScrollView>
         <View style={styles.topBar}>
-          <Text style={styles.heading}>Bluetooth Serial Example</Text>
+          <Text style={styles.heading}>Bluetooth Serial</Text>
+        
           {Platform.OS === 'android'
           ? (
             <View style={styles.enableInfoWrapper}>

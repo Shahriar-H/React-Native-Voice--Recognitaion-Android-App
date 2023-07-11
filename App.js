@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useReducer} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Switch, ScrollView,Button} from 'react-native';
 import Voice from '@react-native-voice/voice';
 import SoundPlayer from 'react-native-sound-player';
@@ -14,8 +14,23 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import BluetoothConnection from './components/BluetoothConnection'
 
-const HomeScreen = ({navigation}) => {
+const initialState = {
+  comandState:"D"
+}
+const reducer = (state,action)=>{
+  switch (action?.type) {
+    case "COMAND":
+      return {...state,comandState:action.payload}
   
+    default:
+      return {...state,comandState:"No Command Found"}
+    
+  }
+}
+
+const HomeScreen = ({navigation}) => {
+ 
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [isEnabled, setIsEnabled] = useState(false);
   const [paused, setpaused] = useState(false);
   const [showBookList, setshowBookList] = useState('none');
@@ -55,12 +70,18 @@ const HomeScreen = ({navigation}) => {
     Voice.onSpeechStart = onSpeechStartHandler;
     Voice.onSpeechResults = onSpeechResultsHandler;
     Voice.onSpeechEnd = onSpeechEndHandler;
+    
 
     return () =>{
       Voice.destroy().then(Voice.removeAllListeners) 
     }
     
   },[]);
+
+  // useEffect(() => {
+  //   console.log(state);
+    
+  // }, [result]);
 
   //play sound during start
  
@@ -141,13 +162,15 @@ const HomeScreen = ({navigation}) => {
       SoundPlayer.play()
       setpaused(false)
     }
-    else if (e.value[0]==='hands down') {
+    else if (e.value[0]==='hands down' || e.value[0]=== 'Hans down' || e.value[0]=== 'hansdown' || e.value[0]==='hansdown') {
       // SoundPlayer.play()
+      dispatch({ type: 'COMAND',payload:'D' });
       setrobocomand('D')
       setpaused(false)
     }
     else if (e.value[0]==='hands up') {
       // SoundPlayer.play()
+      dispatch({ type: 'COMAND',payload:'C' });
       setrobocomand('C')
       setpaused(false)
     }
@@ -158,7 +181,7 @@ const HomeScreen = ({navigation}) => {
       myValue.then(()=>{
         TextToSpc(myValue['_3'])
         
-      })
+      }).catch((e)=>console.log(e))
     }
    
     setresult(e.value[0]);
@@ -179,7 +202,7 @@ const HomeScreen = ({navigation}) => {
 const TextToSpc = (myWord)=>{
   Tts.setDefaultLanguage('en-US');
   Tts.setDefaultRate(0.5);
-  Tts.setDefaultVoice('com.apple.ttsbundle.Moira-compact');
+
   Tts.speak(myWord);
 }
 const ModalControll = ()=>{
@@ -205,11 +228,11 @@ const showBlutoothpage = ()=>{
   return (
     <ScrollView style={{padding:10,paddingTop:15, flex:1,height:'100%'}}>
       <TouchableOpacity onPress={showBlutoothpage} style={{padding:10, color:'white', backgroundColor:'black'}}>
-          <Text style={{textAlign:'center', color:'white'}}>Connect To Bluetooth</Text>
+          <Text style={{textAlign:'center', color:'white'}}>{isBluetoothconnected?"Close Popup":"Connect To Bluetooth"}</Text>
       </TouchableOpacity>
       {<View style={{...styles.bluetoothConnectionDiv,height:isBluetoothconnected?"100%":0}}>
         
-        <BluetoothConnection comand={robocomand}/>
+        <BluetoothConnection state={state} dispatch={dispatch} comand={robocomand}/>
       </View>}
     <View style={styles.mainContainer}>
       <View style={styles.containerSwice}>
