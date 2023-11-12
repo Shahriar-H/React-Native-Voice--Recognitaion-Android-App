@@ -304,7 +304,7 @@ class BluetoothConnection extends Component {
       <ScrollView>
         <View style={styles.topBar}>
           <Text style={styles.heading}>Bluetooth Serial</Text>
-        
+          <Text>{comand}</Text>
           {Platform.OS === 'android'
           ? (
             <View style={styles.enableInfoWrapper}>
